@@ -1,0 +1,122 @@
+{
+  "project_info": {
+    "project_number": "993696815771",
+    "firebase_url": "https://gocery-cd661-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "gocery-cd661",
+    "storage_bucket": "gocery-cd661.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:993696815771:android:645c296ac9dbe0ccbb443e",
+        "android_client_info": {
+          "package_name": "com.example.goceryforproj"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "993696815771-pg7tdfefi592bkegmr4uc8113kii7mr6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.goceryforproj",
+            "certificate_hash": "772e4102300505043f5891c8332ae0ac67476b1d"
+          }
+        },
+        {
+          "client_id": "993696815771-pt13kf3tfsgfe7q8v013csleq0df3m57.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.goceryforproj",
+            "certificate_hash": "fb11186ab368f200c388ec7aa43399ac1a2eab12"
+          }
+        },
+        {
+          "client_id": "993696815771-5alnda1n7eeceql2hihu5njkfb3fhgij.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9j5YPtWbSfhy5aJIblpnTVBqQbQyQXmU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "993696815771-5alnda1n7eeceql2hihu5njkfb3fhgij.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:993696815771:android:baf5c8e3498ab1a0bb443e",
+        "android_client_info": {
+          "package_name": "com.example.goceryforproj"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "993696815771-i78ucaclitm1pcaktgu90h350nhfchi3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.goceryforproj",
+            "certificate_hash": "fb11186ab368f200c388ec7aa43399ac1a2eab12"
+          }
+        },
+        {
+          "client_id": "993696815771-5alnda1n7eeceql2hihu5njkfb3fhgij.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9j5YPtWbSfhy5aJIblpnTVBqQbQyQXmU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "993696815771-5alnda1n7eeceql2hihu5njkfb3fhgij.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:993696815771:android:fb2546befaeeca1cbb443e",
+        "android_client_info": {
+          "package_name": "com.example.gocerynimann"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "993696815771-5alnda1n7eeceql2hihu5njkfb3fhgij.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9j5YPtWbSfhy5aJIblpnTVBqQbQyQXmU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "993696815771-5alnda1n7eeceql2hihu5njkfb3fhgij.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
