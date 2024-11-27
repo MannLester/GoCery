@@ -157,6 +157,7 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
         List<Double> productsCost = new ArrayList<>();
         List<Integer> productsCount = new ArrayList<>();
         List<String> categories = new ArrayList<>();
+        List<String> productIds = new ArrayList<>();
 
         for (GetProduct product : productList) {
             if (product.getSelectedQuantity() > 0) {
@@ -164,6 +165,7 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
                 productsCost.add(product.getPriceAsDouble());
                 productsCount.add(product.getSelectedQuantity());
                 categories.add(product.getCategory());
+                productIds.add(product.getId());
             }
         }
 
@@ -175,6 +177,7 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
         report.put("productsCost", productsCost);
         report.put("productsCount", productsCount);
         report.put("totalCost", totalPrice);
+        report.put("productIds", productIds);
 
         db.collection("reports")
                 .add(report)
