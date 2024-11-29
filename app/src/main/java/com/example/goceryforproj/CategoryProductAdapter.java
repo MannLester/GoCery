@@ -1,6 +1,7 @@
 package com.example.goceryforproj;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,12 +45,16 @@ public class CategoryProductAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getGroupCount() {
+        Log.d("CategoryAdapter", "Group count: " + categories.size());
         return categories.size();
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return categoryProducts.get(categories.get(groupPosition)).size();
+        String category = categories.get(groupPosition);
+        int count = categoryProducts.get(category).size();
+        Log.d("CategoryAdapter", "Children count for " + category + ": " + count);
+        return count;
     }
 
     @Override
@@ -84,7 +89,9 @@ public class CategoryProductAdapter extends BaseExpandableListAdapter {
         }
 
         TextView categoryText = convertView.findViewById(R.id.categoryText);
-        categoryText.setText(categories.get(groupPosition));
+        String category = categories.get(groupPosition);
+        categoryText.setText(category);
+        Log.d("CategoryAdapter", "Setting group view for category: " + category);
 
         return convertView;
     }
@@ -96,6 +103,7 @@ public class CategoryProductAdapter extends BaseExpandableListAdapter {
         }
 
         GetProduct product = (GetProduct) getChild(groupPosition, childPosition);
+        Log.d("CategoryAdapter", "Setting child view for product: " + product.getProductName());
 
         TextView productNameText = convertView.findViewById(R.id.productNameText);
         TextView priceText = convertView.findViewById(R.id.priceText);
@@ -142,8 +150,12 @@ public class CategoryProductAdapter extends BaseExpandableListAdapter {
         categories.clear();
         categoryProducts.clear();
 
+        Log.d("CategoryAdapter", "Updating with " + products.size() + " products");
+
         for (GetProduct product : products) {
             String category = product.getCategory();
+            Log.d("CategoryAdapter", "Processing product: " + product.getProductName() + " with category: " + category);
+
             if (!categories.contains(category)) {
                 categories.add(category);
                 categoryProducts.put(category, new ArrayList<>());

@@ -3,6 +3,7 @@ package com.example.goceryforproj;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
@@ -36,27 +37,68 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("ConsumerActivity", "Starting onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_consumer);
+        try {
+            setContentView(R.layout.activity_consumer);
+            Log.d("ConsumerActivity", "Layout set successfully");
 
-        db = FirebaseFirestore.getInstance();
+            db = FirebaseFirestore.getInstance();
+            Log.d("ConsumerActivity", "Firebase initialized");
 
-        expandableListView = findViewById(R.id.expandableListView);
-        totalPriceText = findViewById(R.id.totalPriceText);
-        scanButton = findViewById(R.id.scanButton);
-        checkoutButton = findViewById(R.id.checkoutButton);
+            try {
+                expandableListView = findViewById(R.id.expandableListView);
+                Log.d("ConsumerActivity", "ExpandableListView found");
 
-        productList = new ArrayList<>();
-        adapter = new CategoryProductAdapter(this, productList, this);
-        expandableListView.setAdapter(adapter);
+                totalPriceText = findViewById(R.id.totalPriceText);
+                Log.d("ConsumerActivity", "TotalPriceText found");
 
-        scanButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ConsumerActivity.this, ScannerActivity.class);
-            startActivityForResult(intent, SCANNER_REQUEST_CODE);
-        });
+                scanButton = findViewById(R.id.scanButton);
+                Log.d("ConsumerActivity", "ScanButton found");
 
-        checkoutButton.setOnClickListener(v -> handleCheckout());
-        updateTotalPrice();
+                checkoutButton = findViewById(R.id.checkoutButton);
+                Log.d("ConsumerActivity", "CheckoutButton found");
+            } catch (Exception e) {
+                Log.e("ConsumerActivity", "Error finding views", e);
+                throw e;
+            }
+
+            try {
+                productList = new ArrayList<>();
+                Log.d("ConsumerActivity", "ProductList initialized");
+
+                adapter = new CategoryProductAdapter(this, productList, this);
+                Log.d("ConsumerActivity", "Adapter created");
+
+                expandableListView.setAdapter(adapter);
+                Log.d("ConsumerActivity", "Adapter set to list view");
+            } catch (Exception e) {
+                Log.e("ConsumerActivity", "Error setting up adapter", e);
+                throw e;
+            }
+
+            // Set up click listeners
+            try {
+                scanButton.setOnClickListener(v -> {
+                    Intent intent = new Intent(ConsumerActivity.this, ScannerActivity.class);
+                    startActivityForResult(intent, SCANNER_REQUEST_CODE);
+                });
+                Log.d("ConsumerActivity", "Scan button listener set");
+
+                checkoutButton.setOnClickListener(v -> handleCheckout());
+                Log.d("ConsumerActivity", "Checkout button listener set");
+            } catch (Exception e) {
+                Log.e("ConsumerActivity", "Error setting click listeners", e);
+                throw e;
+            }
+
+            updateTotalPrice();
+            Log.d("ConsumerActivity", "onCreate completed successfully");
+
+        } catch (Exception e) {
+            Log.e("ConsumerActivity", "Fatal error in onCreate", e);
+            Toast.makeText(this, "Error initializing: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -82,6 +124,9 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
                         product.setCategory(documentSnapshot.getString("category"));
                         product.setPrice(documentSnapshot.getString("price"));
                         product.setWeight(documentSnapshot.getString("weight"));
+                        product.setSelectedQuantity(1);
+                        
+                        Log.d("ConsumerActivity", "Fetched product category: " + product.getCategory());
 
                         findProductInventory(product);
                     } else {
@@ -128,6 +173,13 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
 
         productList.add(product);
         adapter.updateProducts(productList);
+        
+        // Automatically expand all groups after adding a product
+        for(int i = 0; i < adapter.getGroupCount(); i++) {
+            expandableListView.expandGroup(i);
+        }
+        
+        Log.d("ConsumerActivity", "Product added to cart: " + product.getProductName());
         updateTotalPrice();
     }
 
