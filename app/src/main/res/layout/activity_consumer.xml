@@ -1,41 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@drawable/gocery_bg">
 
-    <Button
-        android:id="@+id/scanButton"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Scan QR Code" />
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/checkoutButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Checkout"
-        android:layout_margin="8dp"/>
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimary"
+            app:title="Go!cery List"
+            app:titleTextColor="@color/white">
 
-    <ExpandableListView
-        android:id="@+id/expandableListView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp"
-        android:groupIndicator="@null"
-        android:divider="@android:color/darker_gray"
-        android:dividerHeight="0.5dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/checkoutButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:text="@string/checkout"
+                android:textColor="@color/colorPrimary"
+                app:backgroundTint="@color/white"
+                app:cornerRadius="8dp" />
 
-    <TextView
-        android:id="@+id/totalPriceText"
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:gravity="end"
-        android:text="Total: $0.00" />
-</LinearLayout>
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/totalPriceCard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:orientation="vertical">
+
+                <ExpandableListView
+                    android:id="@+id/expandableListView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:groupIndicator="@null"
+                    android:divider="@android:color/transparent"
+                    android:dividerHeight="8dp"
+                    android:padding="16dp"
+                    android:elevation="5dp"
+                    android:background="@color/white"/>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/scanButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:contentDescription="@string/scan_qr_code"
+            app:srcCompat="@drawable/ic_qr_code_scanner"
+            app:backgroundTint="@color/colorAccent"
+            app:tint="@color/navy_blue"
+            app:layout_constraintBottom_toTopOf="@id/totalPriceCard"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/totalPriceCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            android:layout_margin="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/totalPriceText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimaryDark"
+                android:gravity="end"
+                android:text="@string/total_price"/>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

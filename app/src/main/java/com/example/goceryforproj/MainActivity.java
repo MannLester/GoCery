@@ -16,7 +16,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
@@ -30,163 +29,112 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Arrays;
 import java.util.List;
 
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+
 public class MainActivity extends AppCompatActivity {
 
     FirebaseAuth auth;
     GoogleSignInClient googleSignInClient;
     TextView name, mail;
     FirebaseFirestore db;
-    private static final String TAG = "MainActivity";
+    String selectedUserType = ""; // Variable to store the selected user type
 
     private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                try {
-                    Task<GoogleSignInAccount> accountTask = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
-                    handleSignInResult(accountTask);
-                } catch (Exception e) {
-                    Log.e(TAG, "Sign in result failed", e);
-                    Toast.makeText(MainActivity.this, "Sign-in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            new ActivityResultCallback<ActivityResult>() {
+
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Task<GoogleSignInAccount> accountTask = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                        try {
+                            GoogleSignInAccount signInAccount = accountTask.getResult(ApiException.class);
+                            Log.d("MainActivity", "Google sign-in successful: " + signInAccount.getEmail());
+
+                            AuthCredential authCredential = GoogleAuthProvider.getCredential(signInAccount.getIdToken(), null);
+                            auth.signInWithCredential(authCredential).addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    FirebaseUser user = auth.getCurrentUser();
+                                    if (user != null) {
+                                        saveUserData(user.getUid(), user.getDisplayName(), user.getEmail());
+
+                                        // Navigate to the appropriate activity based on user type
+                                        if ("Admin".equalsIgnoreCase(selectedUserType)) {
+                                            Intent intent = new Intent(MainActivity.this, MenuActivity.class);
+                                            startActivity(intent);
+
+                                            finish();
+                                        } else if ("Customer".equalsIgnoreCase(selectedUserType)) {
+                                            Intent intent = new Intent(MainActivity.this, ConsumerActivity.class);
+                                            startActivity(intent);
+                                        } else {
+                                            Toast.makeText(MainActivity.this, "Please select a valid user type", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                } else {
+                                    Log.e("MainActivity", "Authentication failed", task.getException());
+                                    Toast.makeText(MainActivity.this, "Sign-in failed", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        } catch (ApiException e) {
+                            Log.e("MainActivity", "Google sign-in failed", e);
+                        }
+                    }
                 }
             });
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getSupportActionBar().hide();  // Hides the action bar
 
-        // Initialize Firebase
         FirebaseApp.initializeApp(this);
         auth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance(); // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
 
-        FirebaseUser currentUser = auth.getCurrentUser();
-        if (currentUser != null) {
-            navigateToMenu();
-            return;
-        }
-
-        // Initialize UI elements
-        name = findViewById(R.id.nameTV);
-        mail = findViewById(R.id.mailTV);
-
-        // Google Sign-In configuration
         GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.client_id))  // Use your actual client_id here
+                .requestIdToken(getString(R.string.client_id))
                 .requestEmail()
                 .build();
 
         googleSignInClient = GoogleSignIn.getClient(MainActivity.this, options);
 
+        // Initialize the dropdown
+        AutoCompleteTextView actvUserType = findViewById(R.id.actvUserType);
+        String[] userTypes = {"Admin", "Customer"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, userTypes);
+        actvUserType.setAdapter(adapter);
+
+        // Capture the selected user type
+        actvUserType.setOnItemClickListener((parent, view, position, id) -> selectedUserType = (String) parent.getItemAtPosition(position));
+
         // Set up the Google Sign-In button
         SignInButton signInButton = findViewById(R.id.signIn);
         signInButton.setOnClickListener(view -> {
-            // Sign out before starting the sign-in process to allow choosing a different account
+            if (selectedUserType.isEmpty()) {
+                Toast.makeText(MainActivity.this, "Please select a user type", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             googleSignInClient.signOut().addOnCompleteListener(this, task -> {
-                // Start the Google sign-in intent
                 Intent intent = googleSignInClient.getSignInIntent();
                 activityResultLauncher.launch(intent);
             });
         });
     }
 
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            Log.d(TAG, "Google Sign In successful: " + account.getEmail());
-            firebaseAuthWithGoogle(account);
-        } catch (ApiException e) {
-            Log.e(TAG, "signInResult:failed code=" + e.getStatusCode());
-            Log.e(TAG, "signInResult:failed message=" + e.getMessage());
-            Log.e(TAG, "Client ID being used: " + getString(R.string.client_id));
-
-            // Initialize with a default value
-            String errorMessage = "Unknown error occurred";
-
-            switch (e.getStatusCode()) {
-                case GoogleSignInStatusCodes.SIGN_IN_CANCELLED:
-                    errorMessage = "Sign In Cancelled";
-                    break;
-                case GoogleSignInStatusCodes.NETWORK_ERROR:
-                    errorMessage = "Network Error";
-                    break;
-                case GoogleSignInStatusCodes.INVALID_ACCOUNT:
-                    errorMessage = "Invalid Account";
-                    break;
-                case GoogleSignInStatusCodes.SIGN_IN_REQUIRED:
-                    errorMessage = "Sign In Required";
-                    break;
-                case GoogleSignInStatusCodes.DEVELOPER_ERROR:
-                    errorMessage = "Developer Error - Check SHA1 fingerprint and client ID";
-                    Log.e(TAG, "Make sure you have:");
-                    Log.e(TAG, "1. Added SHA1 fingerprint to Firebase Console");
-                    Log.e(TAG, "2. Downloaded latest google-services.json");
-                    Log.e(TAG, "3. Using correct client ID in strings.xml");
-                    break;
-                default:
-                    if (e.getStatusMessage() != null) {
-                        errorMessage = "Sign In Failed: " + e.getStatusMessage();
-                    }
-                    break;
-            }
-            Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        auth.signInWithCredential(credential)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = auth.getCurrentUser();
-                        if (user != null) {
-                            updateUI(user);
-                            saveUserData(user.getUid(), user.getDisplayName(), user.getEmail());
-                        }
-                    } else {
-                        Log.w(TAG, "signInWithCredential:failure", task.getException());
-                        Toast.makeText(MainActivity.this, "Authentication failed",
-                                Toast.LENGTH_SHORT).show();
-                        updateUI(null);
-                    }
-                });
-    }
-
-    private void updateUI(FirebaseUser user) {
-        if (user != null) {
-            name.setText(user.getDisplayName());
-            mail.setText(user.getEmail());
-            navigateToMenu();
-        }
-    }
-
-    private void navigateToMenu() {
-        Intent intent = new Intent(MainActivity.this, MenuActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
     private void saveUserData(String userId, String username, String email) {
-        // Reference to the user document in the 'users' collection
         db.collection("users").document(userId).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    // Check if the document exists
                     if (documentSnapshot.exists()) {
-                        // Document exists, don't override the data
                         Log.d("MainActivity", "User already exists in Firestore, not overriding data.");
                         Toast.makeText(MainActivity.this, "User data already exists", Toast.LENGTH_SHORT).show();
                     } else {
-                        // Document does not exist, save the new user data
-                        List<String> ownedStores = Arrays.asList();  // Start with an empty list of owned stores
-
-                        // Create a map of user data
+                        List<String> ownedStores = Arrays.asList();
                         User user = new User(username, email, ownedStores);
-
-                        // Save user data to Firestore
-                        db.collection("users")
-                                .document(userId)  // Use the user ID as the document ID
-                                .set(user)
+                        db.collection("users").document(userId).set(user)
                                 .addOnSuccessListener(aVoid -> {
                                     Log.d("MainActivity", "User data saved successfully");
                                     Toast.makeText(MainActivity.this, "User data saved", Toast.LENGTH_SHORT).show();
@@ -202,5 +150,4 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Error checking user existence", Toast.LENGTH_SHORT).show();
                 });
     }
-
 }

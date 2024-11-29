@@ -9,27 +9,20 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MenuActivity extends AppCompatActivity {
 
-    private Button btnAddStore, btnAddProduct, btnGenerateQR, btnInventory, btnBuy;
+    private Button btnAddStore, btnAddProduct, btnGenerateQR, btnInventory, btnreceipt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+        getSupportActionBar().hide();  // Hides the action bar
 
         // Initialize buttons
         btnAddStore = findViewById(R.id.btnAddStore);
         btnAddProduct = findViewById(R.id.btnAddProduct);
         btnGenerateQR = findViewById(R.id.btnGenerateQR);
         btnInventory = findViewById(R.id.btnCheckInventory);
-        btnBuy = findViewById(R.id.btnBuy);
-
-        btnBuy.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MenuActivity.this, ConsumerActivity.class);
-                startActivity(intent);
-            }
-        });
+        btnreceipt = findViewById(R.id.btnValidateReceipt);
 
         // Set onClickListeners for navigation
         btnAddStore.setOnClickListener(new View.OnClickListener() {
@@ -63,6 +56,14 @@ public class MenuActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Navigate to GenerateQR activity
                 Intent intent = new Intent(MenuActivity.this, InventoryActivity.class);
+                startActivity(intent);
+            }
+        });
+        btnreceipt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to GenerateQR activity
+                Intent intent = new Intent(MenuActivity.this, ReceiptScanner.class);
                 startActivity(intent);
             }
         });

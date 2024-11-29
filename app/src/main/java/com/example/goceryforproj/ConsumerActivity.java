@@ -8,6 +8,10 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -24,8 +28,8 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
     private FirebaseFirestore db;
     private ExpandableListView expandableListView;
     private TextView totalPriceText;
-    private Button scanButton;
-    private Button checkoutButton;
+    private FloatingActionButton scanButton;
+    private MaterialButton checkoutButton;
     private List<GetProduct> productList;
     private CategoryProductAdapter adapter;
     private double totalPrice = 0.0;
@@ -153,6 +157,14 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
             return;
         }
 
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(this, "User is not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String buyerUid = currentUser.getUid(); // Get current user's UID
+
         List<String> productsBought = new ArrayList<>();
         List<Double> productsCost = new ArrayList<>();
         List<Integer> productsCount = new ArrayList<>();
@@ -169,38 +181,78 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
             }
         }
 
-        Map<String, Object> report = new HashMap<>();
-        report.put("buyerId", "testBuyer");
-        report.put("sellerId", "testSeller");
-        report.put("date", new Date());
-        report.put("productsBought", productsBought);
-        report.put("productsCost", productsCost);
-        report.put("productsCount", productsCount);
-        report.put("totalCost", totalPrice);
-        report.put("productIds", productIds);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        db.collection("reports")
-                .add(report)
-                .addOnSuccessListener(documentReference -> {
-                    String documentId = documentReference.getId();
-                    Intent intent = new Intent(this, ReceiptActivity.class);
-                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy 'at' hh:mm:ss a", Locale.getDefault());
-                    intent.putExtra("date", sdf.format(new Date()));
-                    intent.putExtra("sellerId", "testSeller");
-                    intent.putExtra("total", totalPrice);
-                    intent.putStringArrayListExtra("products", new ArrayList<>(productsBought));
-                    intent.putStringArrayListExtra("categories", new ArrayList<>(categories));
-                    intent.putExtra("costs", productsCost.stream().mapToDouble(Double::doubleValue).toArray());
-                    intent.putExtra("counts", productsCount.stream().mapToInt(Integer::intValue).toArray());
-                    intent.putExtra("documentId", documentId);
+        // Find the sellerId based on productIds
+        db.collection("stores")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        String sellerId = null;
 
-                    startActivity(intent);
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            List<Map<String, Object>> products = (List<Map<String, Object>>) document.get("products");
+                            if (products != null) {
+                                for (Map<String, Object> product : products) {
+                                    String productId = (String) product.get("productId");
+                                    if (productIds.contains(productId)) {
+                                        sellerId = document.getString("ownerId");
+                                        break;
+                                    }
+                                }
+                            }
+                            if (sellerId != null) break;
+                        }
 
-                    productList.clear();
-                    adapter.updateProducts(productList);
-                    updateTotalPrice();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error creating receipt", Toast.LENGTH_SHORT).show());
+                        if (sellerId == null) {
+                            Toast.makeText(this, "Seller not found for the products", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // Create report and navigate
+                        Map<String, Object> report = new HashMap<>();
+                        report.put("buyerId", buyerUid);
+                        report.put("sellerId", sellerId);
+                        report.put("date", new Date());
+                        report.put("productsBought", productsBought);
+                        report.put("productsCost", productsCost);
+                        report.put("productsCount", productsCount);
+                        report.put("categories", categories);
+                        report.put("totalCost", totalPrice);
+                        report.put("productIds", productIds);
+
+                        String finalSellerId = sellerId;
+                        db.collection("reports")
+                                .add(report)
+                                .addOnSuccessListener(documentReference -> {
+                                    String documentId = documentReference.getId();
+                                    Intent intent = new Intent(ConsumerActivity.this, ReceiptActivity.class); // Use explicit context
+                                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy 'at' hh:mm:ss a", Locale.getDefault());
+                                    intent.putExtra("date", sdf.format(new Date()));
+                                    intent.putExtra("sellerId", finalSellerId); // Ensure sellerId is not null
+                                    intent.putExtra("total", totalPrice);
+                                    intent.putStringArrayListExtra("products", new ArrayList<>(productsBought));
+                                    intent.putStringArrayListExtra("categories", new ArrayList<>(categories));
+                                    intent.putExtra("costs", productsCost.stream().mapToDouble(Double::doubleValue).toArray());
+                                    intent.putExtra("counts", productsCount.stream().mapToInt(Integer::intValue).toArray());
+                                    intent.putExtra("documentId", documentId);
+
+                                    startActivity(intent);
+
+                                    productList.clear();
+                                    adapter.updateProducts(productList);
+                                    updateTotalPrice();
+                                })
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(this, "Error creating receipt", Toast.LENGTH_SHORT).show());
+                    } else {
+                        Toast.makeText(this, "Failed to fetch store data", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
     }
+
+
+
+
 }

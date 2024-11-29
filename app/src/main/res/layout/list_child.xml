@@ -1,57 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp">
-
-    <TextView
-        android:id="@+id/productNameText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:layout_marginBottom="4dp"/>
-
-    <TextView
-        android:id="@+id/priceText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"/>
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <Button
-            android:id="@+id/decreaseButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:text="-"/>
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <TextView
-            android:id="@+id/quantityText"
-            android:layout_width="48dp"
+            android:id="@+id/productNameText"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textSize="16sp"/>
+            android:textSize="18sp"
+            android:textColor="@color/colorPrimaryDark"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
 
-        <Button
-            android:id="@+id/increaseButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:text="+"/>
-
-        <Space
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/priceText"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:textSize="16sp"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginBottom="12dp"/>
 
-        <Button
-            android:id="@+id/removeButton"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Remove"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/decreaseButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="20dp"
+                android:text="-"
+                android:textSize="18sp"
+                app:backgroundTint="@color/colorPrimary"/>
+
+            <TextView
+                android:id="@+id/quantityText"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:textColor="@color/colorPrimaryDark"
+                android:layout_marginHorizontal="8dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/increaseButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="20dp"
+                android:text="+"
+                android:textSize="18sp"
+                app:backgroundTint="@color/colorPrimary"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/removeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/remove"
+                android:textColor="@color/colorAccent"
+                app:backgroundTint="@color/white"
+                app:strokeColor="@color/colorAccent"
+                app:strokeWidth="1dp"
+                app:cornerRadius="8dp"/>
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

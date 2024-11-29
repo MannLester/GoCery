@@ -1,4 +1,50 @@
 <resources>
-    <string name="app_name">GoCeryForProj</string>
+    <string name="app_name">Gocery</string>
     <string name = "client_id">993696815771-5alnda1n7eeceql2hihu5njkfb3fhgij.apps.googleusercontent.com</string>
+    <string name="app_logo">Go!Cery Logo</string>
+    <string name="sign_up_with_google">Sign up with Google</string>
+    <string name="email_address">Email Address</string>
+    <string name="password">Password</string>
+    <string name="login_as">Login as:</string>
+    <string name="login">Login</string>
+    <string name="don_t_have_an_account_yet_sign_up">Don\'t have an account yet? Sign up</string>
+    <string name="admin_dashboard">Admin Dashboard</string>
+    <string name="add_store">Add Store</string>
+    <string name="add_product">Add Product</string>
+    <string name="generate_qr_code">Generate QR Code</string>
+    <string name="view_inventory">View Inventory</string>
+    <string name="back">Back</string>
+    <string name="store_name">Store Name</string>
+    <string name="store_location">Store Location</string>
+    <string name="store_phone_number">Store Phone Number</string>
+    <string name="store">Store</string>
+    <string name="product_name">Product Name</string>
+    <string name="price">Price</string>
+    <string name="weight">Weight</string>
+    <string name="category">Category</string>
+    <string name="inventory_count">Inventory Count</string>
+    <string name="product">Product</string>
+    <string name="qr_code">QR Code</string>
+    <string name="receipt_scanner">Receipt Scanner</string>
+    <string name="scan_qr_instruction">Place the QR code inside the box</string>
+    <string name="receipt_confirmation">Receipt Confirmation</string>
+    <string name="purchased_products">Purchased Products</string>
+    <string name="total">Total: $%.2f</string>
+    <string name="confirm_receipt">Confirm Receipt</string>
+    <string-array name="user_types">
+        <item>Admin</item>
+        <item>Customer</item>
+    </string-array>
+    <string name="select_store">Select Store</string>
+    <string name="inventory_list">Inventory List</string>
+    <string name="receipt_details">Receipt Details</string>
+    <string name="purchased_items">Purchased Items</string>
+    <string name="checkout">Checkout</string>
+    <string name="scan_qr_code">Scan QR Code</string>
+    <string name="total_price">Total: $0.00</string>
+    <string name="remove">Remove</string>
+    <string name="expand_category">Expand category</string>
+    <string name="align_qr_code">Align QR code within the frame</string>
+    <string name="capture_image">Capture Image</string>
+    <string name="close_camera">Close Camera</string>
 </resources>

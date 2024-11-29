@@ -1,3 +1,4 @@
+
 package com.example.goceryforproj;
 
 import android.os.Bundle;
@@ -5,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,6 +37,7 @@ public class AddStore extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_store);  // Make sure you have the correct layout
+        getSupportActionBar().hide();  // Hides the action bar
         FirebaseApp.initializeApp(AddStore.this);
 
         // Initialize Firestore and FirebaseAuth
@@ -87,6 +90,10 @@ public class AddStore extends AppCompatActivity {
                         });
             }
         });
+
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(view -> finish());
+
     }
 
     // Validate that all fields are filled out
@@ -137,4 +144,6 @@ public class AddStore extends AppCompatActivity {
                     Log.e("Firebase", "Error updating user's ownedStores", e);
                 });
     }
+
+
 }

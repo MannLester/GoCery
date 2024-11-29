@@ -29,9 +29,11 @@
         <activity android:name=".MenuActivity"></activity>
         <activity android:name=".GenerateQrActivity"></activity>
         <activity android:name=".InventoryActivity"></activity>
-        <activity android:name=".ConsumerActivity"></activity>
+        <activity android:name=".ReceiptScanner"></activity>
+        <activity android:name=".ShowReceipt"></activity>
         <activity android:name=".ScannerActivity"></activity>
         <activity android:name=".ReceiptActivity"></activity>
+        <activity android:name=".ConsumerActivity"></activity>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />

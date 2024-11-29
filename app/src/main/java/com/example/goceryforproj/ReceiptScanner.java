@@ -1,6 +1,6 @@
 package com.example.goceryforproj;
 
-//general imports and camera imports
+// general imports and camera imports
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
@@ -13,17 +13,16 @@ import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-//android imports
+// android imports
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
-//google imports
+// google imports
 import com.google.android.gms.tasks.Task;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
@@ -31,33 +30,33 @@ import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
 
-//java imports
+// java imports
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ScannerActivity extends AppCompatActivity {
+public class ReceiptScanner extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CAMERA = 1001;
     private PreviewView previewView;
     private ExecutorService cameraExecutor;
     private BarcodeScanner scanner;
     private ProcessCameraProvider cameraProvider;
-    private String lastScannedCode = ""; // Add this to track last scanned code
-    private long lastScanTime = 0; // Add this to track time between scans
-    private static final long SCAN_COOLDOWN_MS = 2000; // 2 seconds cooldown between scans
+    private String lastScannedCode = "";
+    private long lastScanTime = 0;
+    private static final long SCAN_COOLDOWN_MS = 2000;
+    private boolean isTransitioning = false;
 
     @ExperimentalGetImage
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scanner);
+        setContentView(R.layout.activity_receipt_scanner);
         getSupportActionBar().hide();  // Hides the action bar
 
         previewView = findViewById(R.id.viewFinder);
 
         // Request camera permission
-
         if (allPermissionsGranted()) {
             startCamera();
         } else {
@@ -67,13 +66,11 @@ public class ScannerActivity extends AppCompatActivity {
         }
 
         // Initialize barcode scanner
-
         BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
                 .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
                 .build();
         scanner = BarcodeScanning.getClient(options);
         cameraExecutor = Executors.newSingleThreadExecutor();
-
     }
 
     @ExperimentalGetImage
@@ -94,7 +91,7 @@ public class ScannerActivity extends AppCompatActivity {
                 cameraProvider.unbindAll();
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
             } catch (ExecutionException | InterruptedException e) {
-                Log.e("MainActivity", "Error starting camera: ", e);
+                Log.e("ReceiptScanner", "Error starting camera: ", e);
             }
         }, ContextCompat.getMainExecutor(this));
     }
@@ -114,20 +111,24 @@ public class ScannerActivity extends AppCompatActivity {
                             if (rawValue != null) {
                                 long currentTime = System.currentTimeMillis();
                                 if (!rawValue.equals(lastScannedCode) &&
-                                        (currentTime - lastScanTime) > SCAN_COOLDOWN_MS) {
+                                        (currentTime - lastScanTime) > SCAN_COOLDOWN_MS &&
+                                        !isTransitioning) { // Check if already transitioning
                                     lastScannedCode = rawValue;
                                     lastScanTime = currentTime;
 
-                                    Intent resultIntent = new Intent();
-                                    resultIntent.putExtra("scanned_product_id", rawValue);
-                                    setResult(RESULT_OK, resultIntent);
-                                    finish();
+                                    isTransitioning = true;
+
+                                    Intent intent = new Intent(ReceiptScanner.this, ShowReceipt.class);
+                                    intent.putExtra("scanned_product_id", rawValue);
+                                    startActivity(intent);
+
+                                    finish(); // Close the scanner activity
                                 }
                             }
                         }
                     })
                     .addOnFailureListener(e ->
-                            Log.e("MainActivity", "Barcode scanning failed: ", e))
+                            Log.e("ReceiptScanner", "Barcode scanning failed: ", e))
                     .addOnCompleteListener(task -> imageProxy.close());
         } else {
             imageProxy.close();

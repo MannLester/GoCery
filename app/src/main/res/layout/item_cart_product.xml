@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -18,13 +19,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimaryDark" />
 
         <TextView
             android:id="@+id/priceText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="4dp"
+            android:textColor="@color/colorPrimary" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -33,35 +36,52 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/decreaseButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:text="-" />
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="24dp"
+                android:text="-"
+                android:textSize="18sp"
+                app:backgroundTint="@color/colorPrimary" />
 
             <TextView
                 android:id="@+id/quantityText"
                 android:layout_width="48dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textColor="@color/colorPrimaryDark" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/increaseButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:text="+" />
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="24dp"
+                android:text="+"
+                android:textSize="18sp"
+                app:backgroundTint="@color/colorPrimary" />
 
             <Space
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/removeButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Remove" />
+                android:text="@string/remove"
+                app:backgroundTint="@color/colorAccent"
+                app:cornerRadius="8dp" />
         </LinearLayout>
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>
