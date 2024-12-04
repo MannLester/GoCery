@@ -119,7 +119,14 @@ public class ScannerActivity extends AppCompatActivity {
                                     lastScanTime = currentTime;
 
                                     Intent resultIntent = new Intent();
-                                    resultIntent.putExtra("scanned_product_id", rawValue);
+                                    // Check if it's a store QR code
+                                    if (rawValue.startsWith("STORE_")) {
+                                        resultIntent.putExtra("is_store_qr", true);
+                                        resultIntent.putExtra("store_id", rawValue.substring(6)); // Remove "STORE_" prefix
+                                    } else {
+                                        resultIntent.putExtra("is_store_qr", false);
+                                        resultIntent.putExtra("scanned_product_id", rawValue);
+                                    }
                                     setResult(RESULT_OK, resultIntent);
                                     finish();
                                 }

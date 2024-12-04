@@ -4,18 +4,30 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.List;
 
 public class MenuActivity extends AppCompatActivity {
 
     private Button btnAddStore, btnAddProduct, btnGenerateQR, btnInventory, btnreceipt;
+    private FirebaseFirestore db;
+    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
         getSupportActionBar().hide();  // Hides the action bar
+
+        // Initialize Firebase
+        db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         // Initialize buttons
         btnAddStore = findViewById(R.id.btnAddStore);
@@ -37,9 +49,7 @@ public class MenuActivity extends AppCompatActivity {
         btnAddProduct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Navigate to AddProduct activity
-                Intent intent = new Intent(MenuActivity.this, AddProduct.class);
-                startActivity(intent);
+                checkStoresAndNavigate();
             }
         });
 
@@ -67,5 +77,26 @@ public class MenuActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private void checkStoresAndNavigate() {
+        String userId = auth.getCurrentUser().getUid();
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        List<String> ownedStores = (List<String>) documentSnapshot.get("ownedStores");
+                        if (ownedStores != null && !ownedStores.isEmpty()) {
+                            // User has stores, navigate to AddProduct
+                            Intent intent = new Intent(MenuActivity.this, AddProduct.class);
+                            startActivity(intent);
+                        } else {
+                            // No stores found
+                            Toast.makeText(MenuActivity.this, "Register a store first!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(MenuActivity.this, "Error checking stores", Toast.LENGTH_SHORT).show();
+                });
     }
 }

@@ -105,9 +105,16 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SCANNER_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            String productId = data.getStringExtra("scanned_product_id");
-            if (productId != null) {
-                fetchProductDetails(productId);
+            if (data.getBooleanExtra("is_store_qr", false)) {
+                // Handle store QR code
+                String storeId = data.getStringExtra("store_id");
+                fetchStoreProducts(storeId);
+            } else {
+                // Handle product QR code (existing code)
+                String productId = data.getStringExtra("scanned_product_id");
+                if (productId != null) {
+                    fetchProductDetails(productId);
+                }
             }
         }
     }
@@ -304,7 +311,60 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
 
     }
 
+    private void fetchStoreProducts(String storeId) {
+        // Clear existing cart
+        productList.clear();
+        adapter.updateProducts(productList);
+        updateTotalPrice();
 
-
+        // Fetch store details first
+        db.collection("stores")
+            .document(storeId)
+            .get()
+            .addOnSuccessListener(storeDoc -> {
+                if (storeDoc.exists()) {
+                    List<Map<String, Object>> storeProducts = (List<Map<String, Object>>) storeDoc.get("products");
+                    if (storeProducts != null && !storeProducts.isEmpty()) {
+                        // Show store name at the top
+                        String storeName = storeDoc.getString("storeName");
+                        Toast.makeText(this, "Viewing products from: " + storeName, Toast.LENGTH_LONG).show();
+                        
+                        // Fetch each product's details
+                        for (Map<String, Object> productInfo : storeProducts) {
+                            String productId = (String) productInfo.get("productId");
+                            Long inventoryCount = (Long) productInfo.get("inventoryCount");
+                            
+                            db.collection("products")
+                                .document(productId)
+                                .get()
+                                .addOnSuccessListener(productDoc -> {
+                                    if (productDoc.exists()) {
+                                        GetProduct product = new GetProduct();
+                                        product.setId(productId);
+                                        product.setProductName(productDoc.getString("productName"));
+                                        product.setCategory(productDoc.getString("category"));
+                                        product.setPrice(productDoc.getString("price"));
+                                        product.setWeight(productDoc.getString("weight"));
+                                        product.setInventoryCount(inventoryCount.intValue());
+                                        product.setSelectedQuantity(1);
+                                        
+                                        productList.add(product);
+                                        adapter.updateProducts(productList);
+                                        
+                                        // Expand all groups after adding products
+                                        for(int i = 0; i < adapter.getGroupCount(); i++) {
+                                            expandableListView.expandGroup(i);
+                                        }
+                                    }
+                                });
+                        }
+                    } else {
+                        Toast.makeText(this, "No products found in this store", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            })
+            .addOnFailureListener(e -> 
+                Toast.makeText(this, "Error fetching store products", Toast.LENGTH_SHORT).show());
+    }
 
 }

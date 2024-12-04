@@ -1,4 +1,3 @@
-
 package com.example.goceryforproj;
 
 import android.os.Bundle;

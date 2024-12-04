@@ -1,4 +1,3 @@
-
 package com.example.goceryforproj;
 
 import android.os.Bundle;
@@ -7,11 +6,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -23,11 +24,17 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentReference;
 
+import android.text.Editable;
+import android.text.TextWatcher;
+
 public class AddStore extends AppCompatActivity {
 
     private EditText storeName;
     private EditText storeLocation;
     private EditText storePhone;
+    private ImageView qrCodeImage;
+    private Button btnClear, btnSubmitStore;
+    private String existingStoreId = null;
 
     // Initialize Firestore
     FirebaseFirestore db;
@@ -47,8 +54,31 @@ public class AddStore extends AppCompatActivity {
         storeName = findViewById(R.id.storeName);
         storeLocation = findViewById(R.id.storeLocation);
         storePhone = findViewById(R.id.storePhone);
+        qrCodeImage = findViewById(R.id.qrCodeImage);
+        btnClear = findViewById(R.id.btnClear);
+        btnSubmitStore = findViewById(R.id.btnSubmitStore);
 
         Button submitButton = findViewById(R.id.btnSubmitStore);
+
+        // Add TextWatcher for real-time store checking
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                checkExistingStore();
+            }
+        };
+
+        storeName.addTextChangedListener(textWatcher);
+        storeLocation.addTextChangedListener(textWatcher);
+        storePhone.addTextChangedListener(textWatcher);
+
+        btnClear.setOnClickListener(v -> clearForm());
 
         submitButton.setOnClickListener(v -> {
             // Validate inputs
@@ -77,6 +107,8 @@ public class AddStore extends AppCompatActivity {
                                 // Get the new store's document ID
                                 String storeId = documentReference.getId();
                                 updateUserOwnedStores(userId, storeId);
+                                generateQrCode("STORE_" + storeId);
+                                btnClear.setVisibility(View.VISIBLE);
                                 Toast.makeText(AddStore.this, "Store Registered Successfully!", Toast.LENGTH_SHORT).show();
                             }
                         })
@@ -145,5 +177,56 @@ public class AddStore extends AppCompatActivity {
                 });
     }
 
+    private void checkExistingStore() {
+        String name = storeName.getText().toString().trim();
+        String location = storeLocation.getText().toString().trim();
+        String phone = storePhone.getText().toString().trim();
+
+        if (!name.isEmpty() && !location.isEmpty() && !phone.isEmpty()) {
+            String userId = auth.getCurrentUser().getUid();
+            
+            db.collection("stores")
+                .whereEqualTo("ownerId", userId)
+                .whereEqualTo("storeName", name)
+                .whereEqualTo("storeLocation", location)
+                .whereEqualTo("storePhone", phone)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        existingStoreId = queryDocumentSnapshots.getDocuments().get(0).getId();
+                        generateQrCode("STORE_" + existingStoreId);
+                        btnSubmitStore.setEnabled(false);
+                        btnClear.setVisibility(View.VISIBLE);
+                    } else {
+                        existingStoreId = null;
+                        qrCodeImage.setVisibility(View.GONE);
+                        btnSubmitStore.setEnabled(true);
+                        btnClear.setVisibility(View.GONE);
+                    }
+                });
+        }
+    }
+
+    private void generateQrCode(String textToEncode) {
+        try {
+            String qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?data=" + textToEncode + "&size=200x200";
+            qrCodeImage.setVisibility(View.VISIBLE);
+            Glide.with(this)
+                    .load(qrCodeUrl)
+                    .into(qrCodeImage);
+        } catch (Exception e) {
+            Toast.makeText(this, "Error generating QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void clearForm() {
+        storeName.setText("");
+        storeLocation.setText("");
+        storePhone.setText("");
+        qrCodeImage.setVisibility(View.GONE);
+        btnClear.setVisibility(View.GONE);
+        btnSubmitStore.setEnabled(true);
+        existingStoreId = null;
+    }
 
 }
