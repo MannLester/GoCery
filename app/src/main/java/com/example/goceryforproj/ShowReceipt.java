@@ -53,52 +53,57 @@ public class ShowReceipt extends AppCompatActivity {
                                 String buyerId = (String) receiptData.get("buyerId");
                                 String sellerId = (String) receiptData.get("sellerId");
 
+                                List<String> productIds = new ArrayList<>();
                                 List<Object> productIdObjects = (List<Object>) receiptData.get("productIds");
-                                List<String> productIds = null;
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                    productIds = productIdObjects != null ?
-                                            productIdObjects.stream().map(Object::toString).toList() : null;
+                                if (productIdObjects != null) {
+                                    for (Object obj : productIdObjects) {
+                                        productIds.add(obj.toString());
+                                    }
                                 }
 
+                                List<String> productsBought = new ArrayList<>();
                                 List<Object> productsBoughtObjects = (List<Object>) receiptData.get("productsBought");
-                                List<String> productsBought = null;
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                    productsBought = productsBoughtObjects != null ?
-                                            productsBoughtObjects.stream().map(Object::toString).toList() : null;
+                                if (productsBoughtObjects != null) {
+                                    for (Object obj : productsBoughtObjects) {
+                                        productsBought.add(obj.toString());
+                                    }
                                 }
 
+                                List<Long> productsCost = new ArrayList<>();
                                 List<Object> productsCostObjects = (List<Object>) receiptData.get("productsCost");
-                                List<Long> productsCost = null;
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                    productsCost = productsCostObjects != null ?
-                                            productsCostObjects.stream().map(obj -> ((Number) obj).longValue()).toList() : null;
+                                if (productsCostObjects != null) {
+                                    for (Object obj : productsCostObjects) {
+                                        productsCost.add(((Number) obj).longValue());
+                                    }
                                 }
 
+                                List<Long> productsCount = new ArrayList<>();
                                 List<Object> productsCountObjects = (List<Object>) receiptData.get("productsCount");
-                                List<Long> productsCount = null;
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                    productsCount = productsCountObjects != null ?
-                                            productsCountObjects.stream().map(obj -> ((Number) obj).longValue()).toList() : null;
+                                if (productsCountObjects != null) {
+                                    for (Object obj : productsCountObjects) {
+                                        productsCount.add(((Number) obj).longValue());
+                                    }
                                 }
 
-                                Long totalCost = receiptData.get("totalCost") != null ?
-                                        ((Number) receiptData.get("totalCost")).longValue() : null;
+                                Double totalCost = receiptData.get("totalCost") != null ?
+                                        ((Number) receiptData.get("totalCost")).doubleValue() : null;
 
                                 if (buyerId == null || sellerId == null || productIds == null ||
-                                        productsBought == null || productsCost == null || productsCount == null || totalCost == null) {
+                                        productsBought == null || productsCost == null || 
+                                        productsCount == null || totalCost == null) {
                                     throw new IllegalArgumentException("Missing or invalid fields in receipt data.");
                                 }
 
                                 StringBuilder receiptDetails = new StringBuilder();
                                 receiptDetails.append("Buyer: ").append(buyerId).append("\n");
                                 receiptDetails.append("Seller: ").append(sellerId).append("\n");
-                                receiptDetails.append("Total Cost: ").append(totalCost).append("\n\n");
+                                receiptDetails.append("Total Cost: $").append(String.format("%.2f", totalCost)).append("\n\n");
                                 receiptDetails.append("Products:\n");
 
                                 fetchProductDetails(productIds, productsBought, productsCost, productsCount, receiptDetails);
                             } catch (Exception e) {
                                 Log.e("ShowReceipt", "Error parsing receipt data: ", e);
-                                Toast.makeText(this, "Error parsing receipt data.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(this, "Error parsing receipt data: " + e.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         } else {
                             Toast.makeText(this, "Receipt data is null.", Toast.LENGTH_LONG).show();

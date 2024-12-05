@@ -355,7 +355,7 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
                 });
 
         // After successful checkout
-        clearStore();
+//        clearStore();
     }
 
     private void fetchStoreProducts(String storeId) {

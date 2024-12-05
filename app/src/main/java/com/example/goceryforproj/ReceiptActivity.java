@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import android.graphics.Typeface;
+import android.util.Log;
 
 import com.bumptech.glide.Glide;
 
@@ -44,6 +45,7 @@ public class ReceiptActivity extends AppCompatActivity {
         String sellerId = getIntent().getStringExtra("sellerId");
         String documentId = getIntent().getStringExtra("documentId");
         double total = getIntent().getDoubleExtra("total", 0.0);
+        Log.d("ReceiptActivity", "Total price received: " + total);
         ArrayList<String> products = getIntent().getStringArrayListExtra("products");
         double[] costs = getIntent().getDoubleArrayExtra("costs");
         int[] counts = getIntent().getIntArrayExtra("counts");
