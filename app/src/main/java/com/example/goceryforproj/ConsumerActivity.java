@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
@@ -15,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,6 +36,10 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
     private List<GetProduct> productList;
     private CategoryProductAdapter adapter;
     private double totalPrice = 0.0;
+    private TextView storeNameText;
+    private MaterialButton clearStoreButton;
+    private String currentStoreId = null;
+    private String currentStoreName = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +106,13 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
             Log.e("ConsumerActivity", "Fatal error in onCreate", e);
             Toast.makeText(this, "Error initializing: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
+
+        // Initialize new views
+        storeNameText = findViewById(R.id.storeNameText);
+        clearStoreButton = findViewById(R.id.clearStoreButton);
+
+        // Set up clear store button
+        clearStoreButton.setOnClickListener(v -> clearStore());
     }
 
     @Override
@@ -121,54 +134,85 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
     }
 
     private void fetchProductDetails(String productId) {
-        db.collection("products")
-                .document(productId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        GetProduct product = new GetProduct();
-                        product.setId(productId);
-                        product.setProductName(documentSnapshot.getString("productName"));
-                        product.setCategory(documentSnapshot.getString("category"));
-                        product.setPrice(documentSnapshot.getString("price"));
-                        product.setWeight(documentSnapshot.getString("weight"));
-                        product.setSelectedQuantity(1);
-                        
-                        Log.d("ConsumerActivity", "Fetched product category: " + product.getCategory());
-
-                        findProductInventory(product);
-                    } else {
-                        Toast.makeText(this, "Product not found", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error fetching product", Toast.LENGTH_SHORT).show());
+        // First find which store has this product
+        if (currentStoreId != null) {
+            // If we already have a store selected, verify product belongs to it
+            checkProductInCurrentStore(productId);
+        } else {
+            // If no store selected, find the store that has this product
+            findProductStore(productId);
+        }
     }
 
-    private void findProductInventory(GetProduct product) {
+    private void checkProductInCurrentStore(String productId) {
         db.collection("stores")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        List<Object> products = (List<Object>) document.get("products");
-                        if (products != null) {
-                            for (Object obj : products) {
-                                if (obj instanceof Map) {
-                                    Map<String, Object> productMap = (Map<String, Object>) obj;
-                                    if (product.getId().equals(productMap.get("productId"))) {
-                                        Long inventoryCount = (Long) productMap.get("inventoryCount");
-                                        product.setInventoryCount(inventoryCount.intValue());
-                                        addProductToCart(product);
-                                        return;
-                                    }
-                                }
+            .document(currentStoreId)
+            .get()
+            .addOnSuccessListener(storeDoc -> {
+                List<Map<String, Object>> products = (List<Map<String, Object>>) storeDoc.get("products");
+                boolean productFound = false;
+                
+                if (products != null) {
+                    for (Map<String, Object> product : products) {
+                        if (productId.equals(product.get("productId"))) {
+                            productFound = true;
+                            // Fetch and add product details
+                            fetchAndAddProduct(productId, (Long) product.get("inventoryCount"));
+                            break;
+                        }
+                    }
+                }
+                
+                if (!productFound) {
+                    Toast.makeText(this, "This product does not exist in the store you are in", Toast.LENGTH_SHORT).show();
+                }
+            });
+    }
+
+    private void findProductStore(String productId) {
+        db.collection("stores")
+            .get()
+            .addOnSuccessListener(querySnapshot -> {
+                for (DocumentSnapshot storeDoc : querySnapshot.getDocuments()) {
+                    List<Map<String, Object>> products = (List<Map<String, Object>>) storeDoc.get("products");
+                    if (products != null) {
+                        for (Map<String, Object> product : products) {
+                            if (productId.equals(product.get("productId"))) {
+                                // Found the store
+                                currentStoreId = storeDoc.getId();
+                                currentStoreName = storeDoc.getString("storeName");
+                                storeNameText.setText("Shopping at: " + currentStoreName);
+                                clearStoreButton.setVisibility(View.VISIBLE);
+                                
+                                // Fetch and add product
+                                fetchAndAddProduct(productId, (Long) product.get("inventoryCount"));
+                                return;
                             }
                         }
                     }
-                    Toast.makeText(this, "Product not found in any store", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error checking inventory", Toast.LENGTH_SHORT).show());
+                }
+                Toast.makeText(this, "Product not found in any store", Toast.LENGTH_SHORT).show();
+            });
+    }
+
+    private void fetchAndAddProduct(String productId, Long inventoryCount) {
+        db.collection("products")
+            .document(productId)
+            .get()
+            .addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    GetProduct product = new GetProduct();
+                    product.setId(productId);
+                    product.setProductName(documentSnapshot.getString("productName"));
+                    product.setCategory(documentSnapshot.getString("category"));
+                    product.setPrice(documentSnapshot.getString("price"));
+                    product.setWeight(documentSnapshot.getString("weight"));
+                    product.setInventoryCount(inventoryCount.intValue());
+                    product.setSelectedQuantity(1);
+                    
+                    addProductToCart(product);
+                }
+            });
     }
 
     private void addProductToCart(GetProduct product) {
@@ -310,6 +354,8 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
                     }
                 });
 
+        // After successful checkout
+        clearStore();
     }
 
     private void fetchStoreProducts(String storeId) {
@@ -324,12 +370,13 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
             .get()
             .addOnSuccessListener(storeDoc -> {
                 if (storeDoc.exists()) {
+                    currentStoreId = storeId;
+                    currentStoreName = storeDoc.getString("storeName");
+                    storeNameText.setText("Shopping at: " + currentStoreName);
+                    clearStoreButton.setVisibility(View.VISIBLE);
+
                     List<Map<String, Object>> storeProducts = (List<Map<String, Object>>) storeDoc.get("products");
                     if (storeProducts != null && !storeProducts.isEmpty()) {
-                        // Show store name at the top
-                        String storeName = storeDoc.getString("storeName");
-                        Toast.makeText(this, "Viewing products from: " + storeName, Toast.LENGTH_LONG).show();
-                        
                         // Fetch each product's details
                         for (Map<String, Object> productInfo : storeProducts) {
                             String productId = (String) productInfo.get("productId");
@@ -363,9 +410,17 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
                         Toast.makeText(this, "No products found in this store", Toast.LENGTH_SHORT).show();
                     }
                 }
-            })
-            .addOnFailureListener(e -> 
-                Toast.makeText(this, "Error fetching store products", Toast.LENGTH_SHORT).show());
+            });
+    }
+
+    private void clearStore() {
+        currentStoreId = null;
+        currentStoreName = null;
+        storeNameText.setText("No store selected");
+        clearStoreButton.setVisibility(View.GONE);
+        productList.clear();
+        adapter.updateProducts(productList);
+        updateTotalPrice();
     }
 
 }
