@@ -39,6 +39,7 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("ConsumerActivity", "Starting onCreate");
         super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
         try {
             setContentView(R.layout.activity_consumer);
             Log.d("ConsumerActivity", "Layout set successfully");

@@ -31,6 +31,7 @@ public class ReceiptActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receipt);
+        getSupportActionBar().hide();
 
         dateText = findViewById(R.id.dateText);
         sellerIdText = findViewById(R.id.sellerIdText);
