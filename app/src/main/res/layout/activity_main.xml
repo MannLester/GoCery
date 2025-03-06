@@ -14,8 +14,8 @@
 
         <ImageView
             android:id="@+id/ivLogo"
-            android:layout_width="301dp"
-            android:layout_height="289dp"
+            android:layout_width="269dp"
+            android:layout_height="265dp"
             android:layout_marginTop="32dp"
             android:contentDescription="@string/app_logo"
             android:src="@drawable/gocery_logo"

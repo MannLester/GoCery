@@ -26,7 +26,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/generate_qr_code"
+            android:text="Generate QR"
             android:textColor="@color/white"
             android:textSize="35sp"
             android:textStyle="bold"
