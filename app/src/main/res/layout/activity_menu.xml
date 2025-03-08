@@ -113,6 +113,21 @@
                     app:iconGravity="textStart"
                     app:iconSize="24dp"
                     android:padding="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="@color/colorQuaternary"
+                    android:textColor="@color/white"
+                    app:iconTint="@color/white"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStoreHistory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Store History"
+                    android:textSize="18sp"
+                    app:icon="@drawable/ic_receipt_scanner"
+                    app:iconGravity="textStart"
+                    app:iconSize="24dp"
+                    android:padding="16dp"
                     android:backgroundTint="@color/colorQuaternary"
                     android:textColor="@color/white"
                     app:iconTint="@color/white"/>
