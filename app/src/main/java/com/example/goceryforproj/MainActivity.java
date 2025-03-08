@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
                                             finish();
                                         } else if ("Customer".equalsIgnoreCase(selectedUserType)) {
-                                            Intent intent = new Intent(MainActivity.this, ConsumerActivity.class);
+                                            Intent intent = new Intent(MainActivity.this, CustomerMenuActivity.class);
                                             startActivity(intent);
                                         } else {
                                             Toast.makeText(MainActivity.this, "Please select a valid user type", Toast.LENGTH_SHORT).show();
