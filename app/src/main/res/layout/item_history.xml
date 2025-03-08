@@ -39,16 +39,7 @@
         android:textSize="14sp"
         app:layout_constraintTop_toBottomOf="@id/purchase_date"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/view_button" />
-
-    <!-- View Button -->
-    <Button
-        android:id="@+id/view_button"
-        android:layout_width="100dp"
-        android:layout_height="40dp"
-        android:text="View"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toStartOf="@id/delete_button" />
 
     <!-- Delete Button -->
     <Button
@@ -56,7 +47,7 @@
         android:layout_width="100dp"
         android:layout_height="40dp"
         android:text="Delete"
-        app:layout_constraintTop_toBottomOf="@id/view_button"
+        app:layout_constraintTop_toBottomOf="@id/total_price"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
