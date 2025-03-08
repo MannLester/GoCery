@@ -34,6 +34,9 @@
         <activity android:name=".ScannerActivity"></activity>
         <activity android:name=".ReceiptActivity"></activity>
         <activity android:name=".ConsumerActivity"></activity>
+        <activity android:name=".CustomerMenuActivity"></activity>
+        <activity android:name=".HistoryForCustomerActivity"></activity>
+        <activity android:name=".HistoryForOwnerActivity"></activity>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
