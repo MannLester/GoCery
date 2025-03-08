@@ -132,8 +132,11 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("MainActivity", "User already exists in Firestore, not overriding data.");
                         Toast.makeText(MainActivity.this, "User data already exists", Toast.LENGTH_SHORT).show();
                     } else {
+                        // Get profile picture URL from the signed-in Google account
+                        String profilePic = auth.getCurrentUser() != null && auth.getCurrentUser().getPhotoUrl() != null ? auth.getCurrentUser().getPhotoUrl().toString() : "";
+
                         List<String> ownedStores = Arrays.asList();
-                        User user = new User(username, email, ownedStores);
+                        User user = new User(username, email, ownedStores, profilePic);
                         db.collection("users").document(userId).set(user)
                                 .addOnSuccessListener(aVoid -> {
                                     Log.d("MainActivity", "User data saved successfully");

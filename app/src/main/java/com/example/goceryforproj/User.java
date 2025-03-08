@@ -7,6 +7,7 @@ public class User {
     private String username;
     private String email;
     private List<String> ownedStores;
+    private String profilePic;
 
     // Default constructor required for Firestore
     public User() {
@@ -14,10 +15,11 @@ public class User {
     }
 
     // Constructor with parameters to initialize the User object
-    public User(String username, String email, List<String> ownedStores) {
+    public User(String username, String email, List<String> ownedStores, String profilePic) {
         this.username = username;
         this.email = email;
         this.ownedStores = ownedStores;
+        this.profilePic = profilePic;
     }
 
     // Getters and Setters
@@ -43,5 +45,13 @@ public class User {
 
     public void setOwnedStores(List<String> ownedStores) {
         this.ownedStores = ownedStores;
+    }
+
+    public String getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
     }
 }

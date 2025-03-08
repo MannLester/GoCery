@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,12 +36,21 @@ public class CustomerMenuActivity extends AppCompatActivity {
         // Bind Views
         profileImage = findViewById(R.id.profile_image);
         welcomeText = findViewById(R.id.welcome_text);
-        btnProfile = findViewById(R.id.btn_profile);
         btnCart = findViewById(R.id.btn_cart);
         btnHistory = findViewById(R.id.btn_history);
 
         // Load user info
         loadUserInfo();
+
+        btnHistory.setOnClickListener(v -> {
+            Intent intent = new Intent(CustomerMenuActivity.this, HistoryForCustomerActivity.class);
+            startActivity(intent);
+        });
+
+        btnCart.setOnClickListener(v -> {
+            Intent intent = new Intent(CustomerMenuActivity.this, ConsumerActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void loadUserInfo() {
