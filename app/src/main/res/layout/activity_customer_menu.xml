@@ -36,28 +36,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profile_image" />
 
-    <Button
-        android:id="@+id/btn_profile"
-        android:layout_width="223dp"
-        android:layout_height="65dp"
-        android:layout_marginTop="60dp"
-        android:text="Profile"
-        app:layout_constraintTop_toBottomOf="@id/welcome_text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <!-- User Cart Button -->
+
+    <!-- View History Button -->
     <Button
         android:id="@+id/btn_cart"
         android:layout_width="223dp"
         android:layout_height="65dp"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="68dp"
         android:text="User Cart"
-        app:layout_constraintTop_toBottomOf="@id/btn_profile"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/welcome_text" />
 
-    <!-- View History Button -->
     <Button
         android:id="@+id/btn_history"
         android:layout_width="223dp"

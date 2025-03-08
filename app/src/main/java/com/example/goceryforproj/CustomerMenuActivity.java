@@ -36,7 +36,6 @@ public class CustomerMenuActivity extends AppCompatActivity {
         // Bind Views
         profileImage = findViewById(R.id.profile_image);
         welcomeText = findViewById(R.id.welcome_text);
-        btnProfile = findViewById(R.id.btn_profile);
         btnCart = findViewById(R.id.btn_cart);
         btnHistory = findViewById(R.id.btn_history);
 
