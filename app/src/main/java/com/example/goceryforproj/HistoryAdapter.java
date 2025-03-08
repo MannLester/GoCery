@@ -37,7 +37,6 @@ public class HistoryAdapter extends ArrayAdapter<HistoryItem> {
         TextView storeNameText = convertView.findViewById(R.id.store_name_text);
         TextView dateText = convertView.findViewById(R.id.purchase_date);
         TextView totalPriceText = convertView.findViewById(R.id.total_price);
-        Button viewButton = convertView.findViewById(R.id.view_button);
         Button deleteButton = convertView.findViewById(R.id.delete_button);
 
         // Get current item
@@ -47,11 +46,6 @@ public class HistoryAdapter extends ArrayAdapter<HistoryItem> {
         storeNameText.setText("Store: " + item.getStoreName());
         dateText.setText("Date: " + item.getDate());
         totalPriceText.setText("Total: $" + item.getTotalCost());
-
-        // View Button (Placeholder Action)
-        viewButton.setOnClickListener(v -> {
-            Toast.makeText(context, "View details for: " + item.getStoreName(), Toast.LENGTH_SHORT).show();
-        });
 
         // Delete Button
         deleteButton.setOnClickListener(v -> deleteItem(item, position));
