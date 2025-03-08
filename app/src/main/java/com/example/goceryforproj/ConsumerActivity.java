@@ -293,6 +293,7 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         String sellerId = null;
+                        String storeName = null;
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             List<Map<String, Object>> products = (List<Map<String, Object>>) document.get("products");
@@ -301,6 +302,7 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
                                     String productId = (String) product.get("productId");
                                     if (productIds.contains(productId)) {
                                         sellerId = document.getString("ownerId");
+                                        storeName = document.getString("storeName");
                                         break;
                                     }
                                 }
@@ -324,6 +326,7 @@ public class ConsumerActivity extends AppCompatActivity implements CategoryProdu
                         report.put("categories", categories);
                         report.put("totalCost", totalPrice);
                         report.put("productIds", productIds);
+                        report.put("storeName", storeName);
 
                         String finalSellerId = sellerId;
                         db.collection("reports")

@@ -47,6 +47,11 @@ public class CustomerMenuActivity extends AppCompatActivity {
             Intent intent = new Intent(CustomerMenuActivity.this, HistoryForCustomerActivity.class);
             startActivity(intent);
         });
+
+        btnCart.setOnClickListener(v -> {
+            Intent intent = new Intent(CustomerMenuActivity.this, ConsumerActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void loadUserInfo() {
