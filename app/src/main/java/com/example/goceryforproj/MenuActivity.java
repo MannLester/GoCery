@@ -15,7 +15,7 @@ import java.util.List;
 
 public class MenuActivity extends AppCompatActivity {
 
-    private Button btnAddStore, btnAddProduct, btnGenerateQR, btnInventory, btnreceipt;
+    private Button btnAddStore, btnAddProduct, btnGenerateQR, btnInventory, btnreceipt, btnHistory;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
 
@@ -35,7 +35,15 @@ public class MenuActivity extends AppCompatActivity {
         btnGenerateQR = findViewById(R.id.btnGenerateQR);
         btnInventory = findViewById(R.id.btnCheckInventory);
         btnreceipt = findViewById(R.id.btnValidateReceipt);
+        btnHistory = findViewById(R.id.btnStoreHistory);
 
+        btnHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MenuActivity.this, HistoryForOwnerActivity.class);
+                startActivity(intent);
+            }
+        });
         // Set onClickListeners for navigation
         btnAddStore.setOnClickListener(new View.OnClickListener() {
             @Override

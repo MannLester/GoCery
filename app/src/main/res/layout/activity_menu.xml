@@ -124,11 +124,11 @@
                     android:layout_height="wrap_content"
                     android:text="Store History"
                     android:textSize="18sp"
-                    app:icon="@drawable/ic_receipt_scanner"
+                    app:icon="@drawable/ic_clock"
                     app:iconGravity="textStart"
                     app:iconSize="24dp"
                     android:padding="16dp"
-                    android:backgroundTint="@color/colorQuaternary"
+                    android:backgroundTint="@color/black"
                     android:textColor="@color/white"
                     app:iconTint="@color/white"/>
 
