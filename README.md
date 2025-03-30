@@ -82,6 +82,8 @@ We welcome collaborations and contributions! If you're interested in improving o
 | **Mann Lester Magbuhos** | Backend Developer   | [Facebook](https://www.facebook.com/mann.lester.magbuhos.2024) • [Email](mailto:mannlesterm@gmail.com) |
 | **Gerard Andrei Malapote** | Frontend Developer  | [Facebook](https://www.facebook.com/malapote.jiwaaaaaaaaaaaaaaard)                                 |
 | **Marc Linus Rosales**   | Backend Developer   | [Facebook](https://www.facebook.com/MarcLinus.rosales29)                                           |
+| **Joy Susette Domingo**   | Backend Developer   |                                         |
+| **Marc Juaren Gamilla**   | Backend Developer   |                                          |
 
 ---
 
