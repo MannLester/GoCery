@@ -170,6 +170,16 @@ public class AddProduct extends AppCompatActivity {
             return;
         }
 
+        // Validate numbers, but store as string
+        try {
+            Double.parseDouble(price);
+            Double.parseDouble(weight);
+            Integer.parseInt(inventoryCountString);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Price, Weight, and Inventory Count must be valid numbers.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         int inventoryCount = Integer.parseInt(inventoryCountString);
         Product newProduct = new Product(name, price, weight, category);
 
