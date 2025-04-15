@@ -31,6 +31,7 @@ import java.util.List;
 
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import com.example.goceryforproj.utils.ValidationUtils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +40,10 @@ public class MainActivity extends AppCompatActivity {
     TextView name, mail;
     FirebaseFirestore db;
     String selectedUserType = ""; // Variable to store the selected user type
+
+    public boolean isUserLoggedIn() {
+        return auth != null && auth.getCurrentUser() != null;
+    }
 
     private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -59,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
                                     if (user != null) {
                                         saveUserData(user.getUid(), user.getDisplayName(), user.getEmail());
 
-                                        // Navigate to the appropriate activity based on user type
-                                        if ("Admin".equalsIgnoreCase(selectedUserType)) {
+                                        // Validate user type and navigate to appropriate activity
+                                        if (ValidationUtils.validateUserType(selectedUserType) && "Admin".equalsIgnoreCase(selectedUserType)) {
                                             Intent intent = new Intent(MainActivity.this, MenuActivity.class);
                                             startActivity(intent);
 
