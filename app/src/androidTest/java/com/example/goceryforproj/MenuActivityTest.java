@@ -116,7 +116,7 @@ public class MenuActivityTest {
 
     @Test
     public void testHistoryNavigation() {
-        onView(withId(R.id.btnHistory)).perform(click());
+        onView(withId(R.id.btnStoreHistory)).perform(click());
         intended(hasComponent(HistoryForOwnerActivity.class.getName()));
     }
 }

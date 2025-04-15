@@ -153,6 +153,9 @@ public class AddStore extends AppCompatActivity {
         if (phone.isEmpty()) {
             storePhone.setError("Store Phone is required");
             valid = false;
+        } else if (!phone.matches("\\d{1,11}")) {
+            storePhone.setError("Phone must be up to 11 digits and contain only numbers");
+            valid = false;
         } else {
             storePhone.setError(null);
         }
