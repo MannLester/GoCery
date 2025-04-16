@@ -1,6 +1,5 @@
 package com.example.goceryforproj;
 
-import android.widget.Toast;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.espresso.matcher.ViewMatchers;
@@ -8,12 +7,9 @@ import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.assertion.ViewAssertions;
 import androidx.test.espresso.matcher.RootMatchers;
-import androidx.test.espresso.IdlingRegistry;
-import androidx.test.espresso.IdlingResource;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.DocumentReference;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,13 +27,12 @@ import java.util.concurrent.TimeUnit;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
+import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.instanceOf;
@@ -45,16 +40,16 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.anything;
 
 @RunWith(AndroidJUnit4.class)
-public class GenerateQRActivityTester {
+public class InventoryActivityTest {
     @Rule
-    public ActivityTestRule<GenerateQrActivity> activityRule = new ActivityTestRule<>(GenerateQrActivity.class, true, false);
+    public ActivityTestRule<InventoryActivity> activityRule = new ActivityTestRule<>(InventoryActivity.class, true, false);
 
     private FirebaseAuth auth;
     private FirebaseFirestore db;
     private String testStoreId;
     private String testProductId;
-    private String testStoreName = "Test QR Store";
-    private String testProductName = "Test QR Product";
+    private String testStoreName = "Test Inventory Store";
+    private String testProductName = "Test Inventory Product";
 
     @Before
     public void setUp() throws InterruptedException {
@@ -89,8 +84,8 @@ public class GenerateQRActivityTester {
                         // Create test product
                         Map<String, Object> productData = new HashMap<>();
                         productData.put("productName", testProductName);
-                        productData.put("price", "9.99");
-                        productData.put("weight", "500");
+                        productData.put("price", "15.99");
+                        productData.put("weight", "750");
                         
                         db.collection("products").add(productData)
                             .addOnSuccessListener(productRef -> {
@@ -99,7 +94,7 @@ public class GenerateQRActivityTester {
                                 // Add product to store
                                 Map<String, Object> inventoryItem = new HashMap<>();
                                 inventoryItem.put("productId", testProductId);
-                                inventoryItem.put("inventoryCount", 10);
+                                inventoryItem.put("inventoryCount", 25);
                                 
                                 List<Map<String, Object>> productList = new ArrayList<>();
                                 productList.add(inventoryItem);
@@ -145,57 +140,77 @@ public class GenerateQRActivityTester {
     }
 
     @Test
-    public void testProductSpinnerPopulatesOnStoreSelection() throws InterruptedException {
+    public void testInventoryLoadsOnStoreSelection() throws InterruptedException {
         // Select the test store
         onView(withId(R.id.storeSpinner)).perform(click());
         onData(allOf(is(instanceOf(String.class)), is(testStoreName))).perform(click());
         
-        // Wait for products to load
-        Thread.sleep(1500);
-        
-        // Verify product spinner is enabled and populated
-        onView(withId(R.id.productSpinner)).check(matches(isEnabled()));
-        
-        // Click product spinner to see options
-        onView(withId(R.id.productSpinner)).perform(click());
-        onData(allOf(is(instanceOf(String.class)), is(testProductName))).perform(click());
-    }
-
-    @Test
-    public void testShowProductInfoAndQRCode() throws InterruptedException {
-        // Select test store
-        onView(withId(R.id.storeSpinner)).perform(click());
-        onData(allOf(is(instanceOf(String.class)), is(testStoreName))).perform(click());
-        
-        // Wait for products to load
-        Thread.sleep(1500);
-        
-        // Select test product
-        onView(withId(R.id.productSpinner)).perform(click());
-        onData(allOf(is(instanceOf(String.class)), is(testProductName))).perform(click());
-        
-        // Click show product info
-        onView(withId(R.id.btnShowProductInfo)).perform(click());
-        
-        // Wait for QR code to load
+        // Wait for inventory to load
         Thread.sleep(2000);
         
-        // Verify product info and QR code are displayed
-        onView(withId(R.id.productInfoText)).check(matches(isDisplayed()));
-        onView(withId(R.id.productInfoText)).check(matches(withText(containsString(testProductName))));
-        onView(withId(R.id.productInfoText)).check(matches(withText(containsString("9.99"))));
-        onView(withId(R.id.qrCodeImageView)).check(matches(isDisplayed()));
+        // Verify inventory layout contains product info
+        onView(withId(R.id.inventoryLayout)).check(matches(isDisplayed()));
+        
+        // Check that product name, price and stock are displayed
+        onView(withText(containsString(testProductName))).check(matches(isDisplayed()));
+        onView(withText(containsString("15.99"))).check(matches(isDisplayed()));
+        onView(withText(containsString("25"))).check(matches(isDisplayed()));
     }
 
     @Test
-    public void testShowProductInfoWithNoProductSelected() {
-        // Try clicking show info with no product selected
-        onView(withId(R.id.btnShowProductInfo)).perform(click());
+    public void testCreateEmptyStoreWithNoInventory() throws InterruptedException {
+        // Create a new empty store
+        final CountDownLatch emptyStoreLatch = new CountDownLatch(1);
+        String userId = auth.getCurrentUser().getUid();
+        String emptyStoreName = "Empty Test Store";
         
-        // Check for toast message
-        onView(withText("Please select a valid product."))
+        Map<String, Object> emptyStoreData = new HashMap<>();
+        emptyStoreData.put("storeName", emptyStoreName);
+        emptyStoreData.put("ownerId", userId);
+        emptyStoreData.put("phoneNumber", "9876543210");
+        
+        String[] emptyStoreId = new String[1];
+        
+        db.collection("stores").add(emptyStoreData)
+            .addOnSuccessListener(documentReference -> {
+                emptyStoreId[0] = documentReference.getId();
+                emptyStoreLatch.countDown();
+            });
+        
+        emptyStoreLatch.await(5, TimeUnit.SECONDS);
+        
+        // Restart activity to refresh store list
+        activityRule.finishActivity();
+        Thread.sleep(1000);
+        activityRule.launchActivity(null);
+        Thread.sleep(2000);
+        
+        // Select the empty store
+        onView(withId(R.id.storeSpinner)).perform(click());
+        onData(allOf(is(instanceOf(String.class)), is(emptyStoreName))).perform(click());
+        
+        // Wait for inventory check
+        Thread.sleep(1500);
+        
+        // Verify "No inventory found" toast appears
+        onView(withText("No inventory found for this store."))
             .inRoot(RootMatchers.withDecorView(
                 org.hamcrest.Matchers.not(activityRule.getActivity().getWindow().getDecorView())))
             .check(matches(isDisplayed()));
+        
+        // Clean up the empty store
+        if (emptyStoreId[0] != null) {
+            db.collection("stores").document(emptyStoreId[0]).delete();
+        }
+    }
+
+    @Test
+    public void testBackButtonFinishesActivity() {
+        // Click back button
+        onView(withId(R.id.btnBack)).perform(click());
+        
+        // Activity should finish (this is hard to test directly in Espresso)
+        // But we can check that the activity is finishing
+        assert(activityRule.getActivity().isFinishing());
     }
 }
