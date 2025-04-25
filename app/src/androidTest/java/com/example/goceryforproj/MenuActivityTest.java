@@ -17,9 +17,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
+import android.content.Context;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.WindowManager;
+
 import android.view.View;
+import androidx.test.core.app.ApplicationProvider;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import androidx.test.espresso.Root;
@@ -28,8 +33,13 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.not;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 
-import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 // Helper matcher for Toasts
 class ToastMatcher extends TypeSafeMatcher<Root> {
@@ -52,18 +62,43 @@ class ToastMatcher extends TypeSafeMatcher<Root> {
 @RunWith(AndroidJUnit4.class)
 public class MenuActivityTest {
 
+    private FirebaseFirestore db;
+    private static final String TEST_EMAIL = "testuser@gocery.com";
+    private static final String TEST_STORE = "testStore123";
+
     @Rule
     public ActivityScenarioRule<MenuActivity> activityRule =
             new ActivityScenarioRule<>(MenuActivity.class);
 
     @Before
-    public void setUp() {
+    public void setup() {
         Intents.init();
-    }
+        Context context = ApplicationProvider.getApplicationContext();
+        FirebaseApp.initializeApp(context);
+        db = FirebaseFirestore.getInstance();
 
-    @After
-    public void tearDown() {
-        Intents.release();
+        // Ensure the user has a store
+        CountDownLatch latch = new CountDownLatch(1);
+        db.collection("users").document(TEST_EMAIL).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        db.collection("users").document(TEST_EMAIL)
+                                .update("ownedStores", Collections.singletonList(TEST_STORE))
+                                .addOnSuccessListener(aVoid -> latch.countDown())
+                                .addOnFailureListener(e -> latch.countDown());
+                    } else {
+                        latch.countDown();
+                    }
+                })
+                .addOnFailureListener(e -> latch.countDown());
+
+        try {
+            if (!latch.await(10, TimeUnit.SECONDS)) {
+                throw new RuntimeException("Firestore setup timeout");
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -118,5 +153,18 @@ public class MenuActivityTest {
     public void testHistoryNavigation() {
         onView(withId(R.id.btnStoreHistory)).perform(click());
         intended(hasComponent(HistoryForOwnerActivity.class.getName()));
+    }
+    @After
+    public void tearDown() {
+        Intents.release();
+        db.collection("users").document(TEST_EMAIL).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        db.collection("users").document(TEST_EMAIL).delete()
+                                .addOnSuccessListener(aVoid -> Log.d("Test", "Test user deleted"))
+                                .addOnFailureListener(e -> Log.e("Test", "Failed to delete test user", e));
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("Test", "Failed to check user existence", e));
     }
 }
