@@ -13,7 +13,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-//change commit message
+//update commit message
 @RunWith(AndroidJUnit4.class)
 public class LoginUITest {
 
