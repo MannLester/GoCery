@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
 public class UserFetchTest {
-
+//change commit message
     private FirebaseFirestore db;
     private static final String TEST_EMAIL = "test@example.com";
 
